@@ -64,6 +64,49 @@ public class ClientesApiTests
             response.StatusCode);
     }
 
+    [Fact]
+    public async Task ObtenerPorId_ClienteExistente_DebeRetornar200()
+    {
+        using var factory = new ClienteApiFactory();
+        using var client = factory.CreateClient();
+
+        var solicitud = new
+        {
+            Nombre = "Ana López",
+            Correo = $"ana_{Guid.NewGuid():N}@example.com"
+        };
+
+        var creado = await client.PostAsJsonAsync(
+            "/api/Clientes",
+            solicitud);
+
+        var cliente = await creado.Content
+            .ReadFromJsonAsync<ClienteRespuesta>();
+
+        Assert.NotNull(cliente);
+
+        var response = await client.GetAsync(
+            $"/api/Clientes/{cliente.Id}");
+
+        Assert.Equal(
+            HttpStatusCode.OK,
+            response.StatusCode);
+    }
+
+    [Fact]
+    public async Task ObtenerPorId_ClienteInexistente_DebeRetornar404()
+    {
+        using var factory = new ClienteApiFactory();
+        using var client = factory.CreateClient();
+
+        var response = await client.GetAsync(
+            "/api/Clientes/999999");
+
+        Assert.Equal(
+            HttpStatusCode.NotFound,
+            response.StatusCode);
+    }
+
     private sealed record ClienteRespuesta(
         int Id,
         string Nombre,

@@ -88,6 +88,29 @@ public class ClienteServiceTests
 
 
     [Fact]
+    public void ObtenerPorId_ClienteExistente_DebeRetornarClienteYConsultarUnaVez()
+    {
+        var cliente = new Cliente
+        {
+            Id = 1,
+            Nombre = "Ana López",
+            Correo = "ana@example.com"
+        };
+
+        _repositoryMock
+            .Setup(r => r.ObtenerPorId(1))
+            .Returns(cliente);
+
+        var resultado = _service.ObtenerPorId(1);
+
+        Assert.Equal(cliente, resultado);
+
+        _repositoryMock.Verify(
+            r => r.ObtenerPorId(1),
+            Times.Once);
+    }
+
+    [Fact]
     public void Registrar_NombreVacio_DebeLanzarExcepcion()
     {
         var excepcion = Assert.Throws<ArgumentException>(
